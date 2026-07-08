@@ -126,12 +126,10 @@ The simplest way to show your app online!
 ## 📣 Contributions & Issues
 PRs and issues welcome! Please document changes clearly.
 
-## 📄 License
-*Include your license here (MIT, Apache, etc.)*
 
 ---
 
 ## 🙏 Acknowledgments
 - Yahoo Finance for data
 - Streamlit, Keras
-- [Your name/organization here]
+- Myself
