@@ -57,7 +57,7 @@ if st.button("Predict"):
         st.write("Data fetched successfully!")
         close_prices = df["Close"].values.reshape(-1, 1)
         X_test, Y_test = preprocess_data(close_prices)
-        X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], 1)
+        X_test = X_test.reshape(X_test.shape[0], X_test.shape[1])
 
         # Make predictions
         lstm_predictions = lstm_model.predict(X_test)
