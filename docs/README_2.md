@@ -482,3 +482,9 @@ AMZN model -> predicts AMZN
 Simple, fast, deployable, and portfolio-friendly.
 
 The next architectural jump (Architecture B) is where we move toward multi-stock models and additional features like volume, RSI, MACD, and moving averages.
+
+
+
+
+-------------------------------------------------------------------------------------------------------
+ONE OF THE MAJOR PROBLEM IS THAT THE WHOLE MODEL IS TRAINED ON THE APPL DATA ONLY SO THE MORE LIKELY WE CAN SEE SIMILAR PREDICTION LIKE OF THE APPL EVEN OTHER TICKERS ARE USED.
