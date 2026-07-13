@@ -29,7 +29,10 @@ st.write(
 
 @st.cache_resource
 def load_saved_model():
-    return load_model("models/mse_model.keras")
+    return load_model(
+        "models/mse_model.keras",
+        compile = False
+    )
 
 @st.cache_resource
 def load_saved_scaler():
@@ -62,10 +65,14 @@ time_step = 60
 # Download Latest Data
 # -----------------------------------
 
-df = yf.download(
-    ticker,
-    start="2015-01-01"
-)
+@st.cache_data(ttl=3600)
+def load_data(ticker):
+    return yf.download(
+        ticker,
+        start="2020-01-01",
+        progress=False
+    )
+df = load_data(ticker)
 
 if df.empty:
     st.error("Invalid ticker symbol.")
