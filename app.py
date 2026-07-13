@@ -29,7 +29,7 @@ st.write(
 
 @st.cache_resource
 def load_saved_model():
-    return load_model("lstm_model.keras")
+    return load_model("mse_model.keras")
 
 @st.cache_resource
 def load_saved_scaler():
