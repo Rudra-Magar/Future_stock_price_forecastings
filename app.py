@@ -29,11 +29,11 @@ st.write(
 
 @st.cache_resource
 def load_saved_model():
-    return load_model("mse_model.keras")
+    return load_model("models/mse_model.keras")
 
 @st.cache_resource
 def load_saved_scaler():
-    with open("scaler.pkl", "rb") as f:
+    with open("models/scaler.pkl", "rb") as f:
         scaler = pickle.load(f)
     return scaler
 

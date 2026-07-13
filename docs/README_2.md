@@ -234,3 +234,251 @@ Architecture C introduces:
 * LLM Reasoning
 * AI Generated Investment Reports
 * Decision Support System
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++okay i mistakely write the mse as lstm now its fine now tell me one thing can i use the AMZN in the ticker name and get. the forecast of it ? 
+as i cann not take the data on my own whats with the date like :
+
+df = yf.download(
+    ticker,
+    start="2015-01-01"
+)
+does this means the model is being trained form 2015 data til today which is july13 2026 i don not understand.
+
+Yes, you can absolutely use:
+
+ticker = "AMZN"
+
+or:
+
+ticker = "TSLA"
+ticker = "MSFT"
+ticker = "GOOGL"
+ticker = "NVDA"
+ticker = "META"
+ticker = "NFLX"
+
+because yfinance downloads the data directly from Yahoo Finance.
+
+Now for the important part:
+
+What exactly is happening here?
+df = yf.download(
+    ticker,
+    start="2015-01-01"
+)
+
+Suppose today is:
+
+July 13, 2026
+
+and you choose:
+
+ticker = "AMZN"
+
+Then yfinance downloads:
+
+AMZN historical prices
+
+2015-01-01
+2015-01-02
+2015-01-05
+...
+...
+2026-07-13
+
+So yes:
+
+The model is trained on all historical data from January 1, 2015 until today.
+
+Then what is the train/test split doing?
+
+Suppose you downloaded:
+
+2015 → 2026
+
+which gives approximately:
+
+2900 trading days
+
+Your code does:
+
+train_size = int(len(data_scaled) * 0.8)
+
+Therefore:
+
+Training Data:
+2015 → approximately early 2024
+
+Testing Data:
+early 2024 → July 2026
+
+Example:
+
+2015 -------------------- 2024 -------------------- 2026
+|----------------80%------|---------20%------------|
+         TRAIN                        TEST
+During training what does the model see?
+
+The model only sees:
+
+2015 → 2024
+
+during training.
+
+It never sees:
+
+2024 → 2026
+
+during training.
+
+During testing what happens?
+
+Suppose the test set contains:
+
+Day 1 -> 180
+Day 2 -> 181
+Day 3 -> 182
+...
+Day 60 -> 195
+Day 61 -> ?
+
+The model receives:
+
+180,181,182,...,195
+
+and predicts:
+
+Day 61
+
+Then for the next prediction in the test set it receives:
+
+181,182,...,195,196
+
+where:
+
+196
+
+is the real historical value, not the predicted one.
+
+This is the Version 1 historical evaluation we discussed earlier.
+
+What happens during recursive forecasting?
+
+After training finishes:
+
+The model takes:
+
+Last 60 real days available:
+May 2026 → July 2026
+
+and predicts:
+
+July 14, 2026
+
+Then:
+
+July 14 prediction
+
+is fed back into the model to predict:
+
+July 15, 2026
+
+Then:
+
+July 15 prediction
+
+is used to predict:
+
+July 16, 2026
+
+and so on.
+
+So the recursive forecast looks like:
+
+Real data:
+2015 -------------------- July 13, 2026
+
+Prediction:
+July 14, 2026
+July 15, 2026
+July 16, 2026
+...
+August 12, 2026
+
+This is a genuine future forecast because those future prices do not exist yet.
+
+Does changing ticker retrain the model?
+
+With your current app.py:
+
+No.
+
+The model loaded is:
+
+model = load_model("mse_model.keras")
+
+That model was trained only on:
+
+AAPL
+
+Therefore:
+
+AMZN
+TSLA
+NVDA
+
+would produce predictions, but they are not meaningful because the model learned Apple's behavior.
+
+This is actually one of the biggest limitations of Architecture A Version 2.
+
+Proper ways to support multiple stocks
+Option 1 (simple)
+
+Train one model per stock:
+
+aapl_model.keras
+amzn_model.keras
+nvda_model.keras
+
+and load based on ticker.
+
+Good for portfolios.
+
+Option 2 (better)
+
+When user selects:
+
+AMZN
+
+download AMZN data and retrain the model.
+
+This works but takes:
+
+20-60 seconds
+
+which is not ideal for Streamlit.
+
+Option 3 (best long-term)
+
+Train a universal model using:
+
+AAPL
+AMZN
+TSLA
+MSFT
+NVDA
+META
+GOOGL
+...
+
+and include ticker embeddings/features.
+
+This is closer to how professional forecasting systems work.
+
+For Architecture A Version 2, the recommendation is:
+
+AAPL model -> predicts AAPL
+AMZN model -> predicts AMZN
+
+Simple, fast, deployable, and portfolio-friendly.
+
+The next architectural jump (Architecture B) is where we move toward multi-stock models and additional features like volume, RSI, MACD, and moving averages.
